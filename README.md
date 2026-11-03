@@ -81,7 +81,7 @@ Integration tests use a separate module so the embedding module retains zero dep
 
 ## Automatic updates
 
-[Update SQLite](.github/workflows/update.yml) checks the official stable-release metadata daily. A new release updates the source pin, rebuilds all targets, validates candidates on native Linux/macOS/Windows/FreeBSD runners plus musl containers, then opens or updates a single PR using `peter-evans/create-pull-request@v8`. It never merges automatically. Manual dispatch supports rebuilding the pinned version and disabling PR publication. Feature-branch pushes also build candidates without publication.
+[Update SQLite](.github/workflows/update.yml) checks the official stable-release metadata daily. A new release updates the source pin, rebuilds all targets, validates candidates on native Linux/macOS/Windows/FreeBSD runners plus musl containers, then opens or updates a single PR using `peter-evans/create-pull-request@v8`. It never merges automatically. Manual dispatch supports rebuilding the pinned version and disabling PR publication. Feature-branch pushes that change build inputs also build candidates without publication. [Check updater App](.github/workflows/check-app.yml) supports a quick manual credential check.
 
 The updater follows [kitte's GitHub App setup](https://github.com/yuhaiin/kitte/blob/main/.github/workflows/update.yml):
 

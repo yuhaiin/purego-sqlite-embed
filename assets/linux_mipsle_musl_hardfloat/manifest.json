@@ -6,7 +6,7 @@
   "float_abi": "hardfloat",
   "minimum_os": "MIPS32r2, musl 1.2.x",
   "filename": "libsqlite3.so",
-  "sha256": "7698b04404e697c49750002e84e2b87df88cfb09d7eb9eac211f36a07472a29e",
+  "sha256": "1a77194a8fb4ed1391f15e2a14466041b9e9dbe8c4b1fb5396dbf962dfd46a72",
   "size": 2026420,
   "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
   "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
@@ -33,6 +33,6 @@
     "-lpthread",
     "-ldl"
   ],
-  "build_commit": "fdb6c189f3b42ac5f54cf7888d01b74965fe4fa6",
-  "build_run": "local"
+  "build_commit": "95655fbd2c565a05294fd1e68964d427cf382b97",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41678859654"
 }

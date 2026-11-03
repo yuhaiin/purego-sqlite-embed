@@ -33,6 +33,6 @@
     "-lpthread",
     "-ldl"
   ],
-  "build_commit": "fdb6c189f3b42ac5f54cf7888d01b74965fe4fa6",
-  "build_run": "local"
+  "build_commit": "95655fbd2c565a05294fd1e68964d427cf382b97",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41678859654"
 }

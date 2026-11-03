@@ -6,7 +6,7 @@
   "float_abi": "",
   "minimum_os": "Windows 10 ARM64",
   "filename": "sqlite3.dll",
-  "sha256": "9700a49d486e955950fa8580e8593031f645d0d803ae5b3a40fe38ce74a036e2",
+  "sha256": "aa344d0600e3a7451216dfcb2bcf146283db2ff8705af6bc0abcc390dc1f9919",
   "size": 1545728,
   "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
   "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
@@ -27,6 +27,6 @@
     "-DSQLITE_ENABLE_MATH_FUNCTIONS",
     "-DSQLITE_USE_URI=1"
   ],
-  "build_commit": "fdb6c189f3b42ac5f54cf7888d01b74965fe4fa6",
-  "build_run": "local"
+  "build_commit": "95655fbd2c565a05294fd1e68964d427cf382b97",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41678859654"
 }

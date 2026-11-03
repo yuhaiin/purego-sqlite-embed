@@ -144,6 +144,7 @@ jobs:
       - run: |
           docker run --rm -v "$PWD:/src" -w /src alpine:3.23 sh -ec '
             apk add --no-cache go gcc musl-dev python3
+            export GOTOOLCHAIN=go1.27.3
             python3 scripts/install.py .build/dist
             CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test -tags sqlite_musl ./...
             cd tests/integration
