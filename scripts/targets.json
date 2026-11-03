@@ -1,0 +1,111 @@
+{
+  "linux_amd64_glibc": {
+    "goos": "linux",
+    "goarch": "amd64",
+    "libc": "glibc",
+    "minimum_os": "glibc 2.17",
+    "zig": "x86_64-linux-gnu.2.17",
+    "tags": "linux && !android && amd64 && !sqlite_musl"
+  },
+  "linux_arm64_glibc": {
+    "goos": "linux",
+    "goarch": "arm64",
+    "libc": "glibc",
+    "minimum_os": "glibc 2.17",
+    "zig": "aarch64-linux-gnu.2.17",
+    "tags": "linux && !android && arm64 && !sqlite_musl"
+  },
+  "linux_amd64_musl": {
+    "goos": "linux",
+    "goarch": "amd64",
+    "libc": "musl",
+    "minimum_os": "musl 1.2.x",
+    "zig": "x86_64-linux-musl",
+    "tags": "linux && !android && amd64 && sqlite_musl"
+  },
+  "linux_arm64_musl": {
+    "goos": "linux",
+    "goarch": "arm64",
+    "libc": "musl",
+    "minimum_os": "musl 1.2.x",
+    "zig": "aarch64-linux-musl",
+    "tags": "linux && !android && arm64 && sqlite_musl"
+  },
+  "linux_mipsle_glibc_hardfloat": {
+    "goos": "linux",
+    "goarch": "mipsle",
+    "libc": "glibc",
+    "float_abi": "hardfloat",
+    "minimum_os": "MIPS32r2, glibc 2.17",
+    "zig": "mipsel-linux-gnueabihf.2.17",
+    "cpu": "mips32r2",
+    "tags": "linux && !android && mipsle && mipsle.hardfloat && !sqlite_musl"
+  },
+  "linux_mipsle_glibc_softfloat": {
+    "goos": "linux",
+    "goarch": "mipsle",
+    "libc": "glibc",
+    "float_abi": "softfloat",
+    "minimum_os": "MIPS32r2, glibc 2.17",
+    "zig": "mipsel-linux-gnueabi.2.17",
+    "cpu": "mips32r2",
+    "tags": "linux && !android && mipsle && mipsle.softfloat && !sqlite_musl"
+  },
+  "linux_mipsle_musl_hardfloat": {
+    "goos": "linux",
+    "goarch": "mipsle",
+    "libc": "musl",
+    "float_abi": "hardfloat",
+    "minimum_os": "MIPS32r2, musl 1.2.x",
+    "zig": "mipsel-linux-musleabihf",
+    "cpu": "mips32r2",
+    "tags": "linux && !android && mipsle && mipsle.hardfloat && sqlite_musl"
+  },
+  "linux_mipsle_musl_softfloat": {
+    "goos": "linux",
+    "goarch": "mipsle",
+    "libc": "musl",
+    "float_abi": "softfloat",
+    "minimum_os": "MIPS32r2, musl 1.2.x",
+    "zig": "mipsel-linux-musleabi",
+    "cpu": "mips32r2",
+    "tags": "linux && !android && mipsle && mipsle.softfloat && sqlite_musl"
+  },
+  "darwin_amd64": {
+    "goos": "darwin",
+    "goarch": "amd64",
+    "libc": "libSystem",
+    "minimum_os": "macOS 11.0",
+    "tags": "darwin && !ios && amd64"
+  },
+  "darwin_arm64": {
+    "goos": "darwin",
+    "goarch": "arm64",
+    "libc": "libSystem",
+    "minimum_os": "macOS 11.0",
+    "tags": "darwin && !ios && arm64"
+  },
+  "windows_amd64": {
+    "goos": "windows",
+    "goarch": "amd64",
+    "libc": "Windows CRT",
+    "minimum_os": "Windows 10",
+    "tags": "windows && amd64",
+    "zig": "x86_64-windows-gnu"
+  },
+  "windows_arm64": {
+    "goos": "windows",
+    "goarch": "arm64",
+    "libc": "Windows CRT",
+    "minimum_os": "Windows 10 ARM64",
+    "tags": "windows && arm64",
+    "zig": "aarch64-windows-gnu"
+  },
+  "freebsd_amd64": {
+    "goos": "freebsd",
+    "goarch": "amd64",
+    "libc": "FreeBSD libc",
+    "minimum_os": "FreeBSD 14.3",
+    "tags": "freebsd && amd64"
+  }
+}

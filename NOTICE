@@ -1,0 +1,14 @@
+The Go module and build scripts are original code under LICENSE (MIT).
+
+The SQLite engine is compiled, without source modifications, from the official
+SQLite amalgamation. SQLite deliverable code is public domain:
+https://www.sqlite.org/copyright.html
+Source URL, SHA-256, official SHA3-256, compiler and flags accompany every asset.
+
+Linux and Windows assets are compiled with Zig/LLVM. Relevant compiler/runtime,
+MinGW-w64 and glibc notices are provided under third_party/. The SQLite libraries
+link against the target platform's libc/system libraries; those platform libraries
+are not embedded in this module. Toolchain distributions and runtime source are
+available from the pinned upstream URLs in scripts/install-zig.py and Zig 0.17.0:
+https://ziglang.org/download/0.17.0/zig-0.17.0.tar.xz
+https://github.com/ziglang/zig/tree/0.17.0/lib

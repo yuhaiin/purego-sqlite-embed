@@ -1,0 +1,150 @@
+name: Build and test candidates
+on:
+  workflow_call:
+permissions:
+  contents: read
+jobs:
+  linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - run: python3 scripts/install-zig.py
+      - run: python3 scripts/build.py linux_amd64_glibc linux_arm64_glibc linux_amd64_musl linux_arm64_musl linux_mipsle_glibc_hardfloat linux_mipsle_glibc_softfloat linux_mipsle_musl_hardfloat linux_mipsle_musl_softfloat windows_amd64 windows_arm64
+      - run: python3 scripts/install.py .build/dist
+      - run: CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+      - run: CGO_ENABLED=0 go test ./...
+        working-directory: tests/integration
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-linux
+          path: .build/dist
+          retention-days: 7
+  macos:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: macos-15-intel
+            target: darwin_amd64
+          - runner: macos-15
+            target: darwin_arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - run: python3 scripts/build.py ${{ matrix.target }}
+      - run: python3 scripts/install.py .build/dist
+      - run: CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+      - run: CGO_ENABLED=0 go test ./...
+        working-directory: tests/integration
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-${{ matrix.target }}
+          path: .build/dist
+          retention-days: 7
+  freebsd:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
+        with:
+          operating_system: freebsd
+          version: '14.3'
+          architecture: x86-64
+          shell: bash
+          run: |
+            sudo pkg install -y python311 curl
+            curl -fsSLo /tmp/go.tar.gz https://go.dev/dl/go1.27.3.freebsd-amd64.tar.gz
+            echo 'c15c88d07d6b2d2db5df7b65d9b9c73d631ac4e787da04e2bef2a5b6952c2cbb  /tmp/go.tar.gz' | sha256 -c
+            sudo tar -C /usr/local -xzf /tmp/go.tar.gz
+            export PATH=/usr/local/go/bin:$PATH
+            python3.11 scripts/build.py freebsd_amd64
+            python3.11 scripts/install.py .build/dist
+            CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+            cd tests/integration
+            CGO_ENABLED=1 go test ./...
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: candidate-freebsd
+          path: .build/dist
+          retention-days: 7
+  other-native:
+    needs: linux
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: ubuntu-24.04-arm
+          - runner: windows-2025
+          - runner: windows-11-arm
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: candidate-linux
+          path: .build/dist
+      - run: python3 scripts/install.py .build/dist
+      - run: CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+      - run: CGO_ENABLED=0 go test ./...
+        working-directory: tests/integration
+  musl:
+    needs: linux
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: candidate-linux
+          path: .build/dist
+      - run: |
+          docker run --rm -v "$PWD:/src" -w /src alpine:3.23 sh -ec '
+            apk add --no-cache go gcc musl-dev python3
+            python3 scripts/install.py .build/dist
+            CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test -tags sqlite_musl ./...
+            cd tests/integration
+            CGO_ENABLED=1 go test -tags sqlite_cgo,sqlite_musl ./...
+          '
