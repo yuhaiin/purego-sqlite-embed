@@ -77,7 +77,7 @@ jobs:
           run: |
             sudo pkg install -y python311 curl
             curl -fsSLo /tmp/go.tar.gz https://go.dev/dl/go1.27.3.freebsd-amd64.tar.gz
-            echo 'c15c88d07d6b2d2db5df7b65d9b9c73d631ac4e787da04e2bef2a5b6952c2cbb  /tmp/go.tar.gz' | sha256 -c
+            test "$(sha256 -q /tmp/go.tar.gz)" = c15c88d07d6b2d2db5df7b65d9b9c73d631ac4e787da04e2bef2a5b6952c2cbb
             sudo tar -C /usr/local -xzf /tmp/go.tar.gz
             export PATH=/usr/local/go/bin:$PATH
             python3.11 scripts/build.py freebsd_amd64
