@@ -75,6 +75,8 @@ python3 -m unittest discover -s scripts -p 'test_*.py'
 python3 scripts/verify.py # requires all committed target assets
 ```
 
+Runtime CI covers glibc and musl Linux amd64/arm64, macOS amd64/arm64, Windows amd64/arm64, FreeBSD amd64 and QEMU glibc MIPS hardfloat. Other MIPS ABI variants are cross compiled and their ELF floating-point ABI and Go selection are checked; validate them on matching firmware before deployment.
+
 Integration tests use a separate module so the embedding module retains zero dependencies. They load the extracted binary through the driver, exercise required SQLite capabilities, persist WAL databases, round-trip 64-bit integers/floating-point/Unicode/NUL/blob values and check database integrity.
 
 ## Automatic updates
