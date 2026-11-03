@@ -26,6 +26,6 @@
     "-lm",
     "-lpthread"
   ],
-  "build_commit": "95655fbd2c565a05294fd1e68964d427cf382b97",
-  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41678859654"
+  "build_commit": "b9db4a1e4cfb1ab60026814b631d776b31ad6bb8",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41688734368"
 }
