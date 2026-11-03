@@ -74,8 +74,9 @@ jobs:
           version: '14.3'
           architecture: x86-64
           shell: bash
+          environment_variables: GITHUB_SHA GITHUB_SERVER_URL GITHUB_REPOSITORY GITHUB_RUN_ID
           run: |
-            sudo pkg install -y python311 curl
+            sudo pkg install -y python311 curl git
             curl -fsSLo /tmp/go.tar.gz https://go.dev/dl/go1.27.3.freebsd-amd64.tar.gz
             test "$(sha256 -q /tmp/go.tar.gz)" = c15c88d07d6b2d2db5df7b65d9b9c73d631ac4e787da04e2bef2a5b6952c2cbb
             sudo tar -C /usr/local -xzf /tmp/go.tar.gz
@@ -148,3 +149,24 @@ jobs:
             cd tests/integration
             CGO_ENABLED=1 go test -tags sqlite_cgo,sqlite_musl ./...
           '
+  mipsle:
+    needs: linux
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: candidate-linux
+          path: .build/dist
+      - run: python3 scripts/install.py .build/dist
+      - run: sudo apt-get update && sudo apt-get install -y gcc-mipsel-linux-gnu libc6-dev-mipsel-cross qemu-user
+      - run: bash scripts/test-mipsle.sh

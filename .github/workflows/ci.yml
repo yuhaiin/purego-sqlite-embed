@@ -1,0 +1,86 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: test -z "$(gofmt -l .)"
+      - run: python3 scripts/verify.py
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - run: go vet ./...
+      - run: go test -race ./...
+      - run: go vet ./...
+        working-directory: tests/integration
+  native:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm, macos-15-intel, macos-15, windows-2025, windows-11-arm]
+    runs-on: ${{ matrix.runner }}
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+      - run: CGO_ENABLED=0 go test ./...
+        working-directory: tests/integration
+  mipsle:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: sudo apt-get update && sudo apt-get install -y gcc-mipsel-linux-gnu libc6-dev-mipsel-cross qemu-user
+      - run: bash scripts/test-mipsle.sh
+  musl:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [ubuntu-24.04, ubuntu-24.04-arm]
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - run: |
+          docker run --rm -v "$PWD:/src" -w /src alpine:3.23 sh -ec '
+            apk add --no-cache go gcc musl-dev
+            CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test -tags sqlite_musl ./...
+            cd tests/integration
+            CGO_ENABLED=1 go test -tags sqlite_cgo,sqlite_musl ./...
+          '
+  freebsd:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: cross-platform-actions/action@82668f1fbd89d9c99487604f822cbf6716f124d3 # v1.7.0
+        with:
+          operating_system: freebsd
+          version: '14.3'
+          architecture: x86-64
+          shell: bash
+          run: |
+            sudo pkg install -y curl
+            curl -fsSLo /tmp/go.tar.gz https://go.dev/dl/go1.27.3.freebsd-amd64.tar.gz
+            test "$(sha256 -q /tmp/go.tar.gz)" = c15c88d07d6b2d2db5df7b65d9b9c73d631ac4e787da04e2bef2a5b6952c2cbb
+            sudo tar -C /usr/local -xzf /tmp/go.tar.gz
+            export PATH=/usr/local/go/bin:$PATH
+            CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+            cd tests/integration
+            CGO_ENABLED=1 go test ./...

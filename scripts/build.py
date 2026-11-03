@@ -69,7 +69,7 @@ def build(key):
                 "sha256": hashlib.sha256(data).hexdigest(), "size": len(data),
                 "source_url": URL, "source_sha256": SHA256, "source_sha3_256": SHA3,
                 "compiler": ("Zig 0.17.0; " if "zig" in target else "") + subprocess.check_output(compiler + ["--version"], text=True).splitlines()[0],
-                "flags": (compiler[2:] if "zig" in target else []) + args + libs, "build_commit": os.environ.get("GITHUB_SHA", subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip()),
+                "flags": (compiler[2:] if "zig" in target else []) + args + libs, "build_commit": os.environ.get("GITHUB_SHA") or subprocess.check_output(["git","rev-parse","HEAD"],cwd=ROOT,text=True).strip(),
                 "build_run": os.environ.get("GITHUB_SERVER_URL", "") + "/" + os.environ.get("GITHUB_REPOSITORY", "") + "/actions/runs/" + os.environ.get("GITHUB_RUN_ID", "") if os.environ.get("GITHUB_RUN_ID") else "local"}
     (out / "manifest.json").write_text(json.dumps(manifest, indent=2) + "\n")
 
