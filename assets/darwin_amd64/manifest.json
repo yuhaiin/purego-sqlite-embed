@@ -1,0 +1,33 @@
+{
+  "sqlite_version": "3.54.1",
+  "goos": "darwin",
+  "goarch": "amd64",
+  "libc": "libSystem",
+  "float_abi": "",
+  "minimum_os": "macOS 11.0",
+  "filename": "libsqlite3.dylib",
+  "sha256": "9ed26675ab01d26f9f7820d22044f2d2c8282fdcf9b0deec13df049d423f30e3",
+  "size": 1491952,
+  "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+  "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+  "source_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+  "compiler": "Apple clang version 17.0.0 (clang-1700.0.13.5)",
+  "flags": [
+    "-O2",
+    "-g0",
+    "-dynamiclib",
+    "-fPIC",
+    "-mmacosx-version-min=11.0",
+    "-Wl,-install_name,@rpath/libsqlite3.dylib",
+    "-DSQLITE_THREADSAFE=1",
+    "-DSQLITE_ENABLE_FTS5",
+    "-DSQLITE_ENABLE_RTREE",
+    "-DSQLITE_ENABLE_DBSTAT_VTAB",
+    "-DSQLITE_ENABLE_MATH_FUNCTIONS",
+    "-DSQLITE_USE_URI=1",
+    "-lm",
+    "-lpthread"
+  ],
+  "build_commit": "988ab4e67840d7e1210bd897558c27e82d16e48d",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41677987646"
+}

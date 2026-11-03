@@ -1,0 +1,32 @@
+{
+  "sqlite_version": "3.54.1",
+  "goos": "windows",
+  "goarch": "amd64",
+  "libc": "Windows CRT",
+  "float_abi": "",
+  "minimum_os": "Windows 10",
+  "filename": "sqlite3.dll",
+  "sha256": "79a416dc76d8fab195430a9407c7e9e3019c92e713c6b39039313b0a3d30529f",
+  "size": 1659904,
+  "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
+  "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
+  "source_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
+  "compiler": "Zig 0.17.0; clang version 22.1.8",
+  "flags": [
+    "-target",
+    "x86_64-windows-gnu",
+    "-mcpu=baseline",
+    "-O2",
+    "-g0",
+    "-shared",
+    "-DSQLITE_API=__declspec(dllexport)",
+    "-DSQLITE_THREADSAFE=1",
+    "-DSQLITE_ENABLE_FTS5",
+    "-DSQLITE_ENABLE_RTREE",
+    "-DSQLITE_ENABLE_DBSTAT_VTAB",
+    "-DSQLITE_ENABLE_MATH_FUNCTIONS",
+    "-DSQLITE_USE_URI=1"
+  ],
+  "build_commit": "95655fbd2c565a05294fd1e68964d427cf382b97",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41678859654"
+}

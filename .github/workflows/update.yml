@@ -1,0 +1,123 @@
+name: Update SQLite
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Rebuild the current version even without a new release
+        type: boolean
+        default: false
+      publish:
+        description: Open or update the pull request after validation
+        type: boolean
+        default: true
+  push:
+    branches: ['codex/**']
+    paths:
+      - 'scripts/**'
+      - '.github/workflows/build.yml'
+permissions:
+  contents: read
+concurrency:
+  group: sqlite-update-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    outputs:
+      changed: ${{ steps.check.outputs.changed }}
+      version: ${{ steps.check.outputs.version }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - id: check
+        env:
+          EVENT: ${{ github.event_name }}
+          FORCE: ${{ inputs.force }}
+        run: |
+          if [ "$EVENT" = push ]; then
+            echo 'changed=true' >> "$GITHUB_OUTPUT"
+            python3 -c 'import json,os; f=open(os.environ["GITHUB_OUTPUT"],"a"); f.write("version="+json.load(open("scripts/source.json"))["version"]+"\n")'
+          elif [ "$FORCE" = true ]; then
+            python3 scripts/check-update.py --force
+          else
+            python3 scripts/check-update.py
+          fi
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: source-pin
+          path: scripts/source.json
+          retention-days: 7
+  build:
+    needs: check
+    if: needs.check.outputs.changed == 'true'
+    uses: ./.github/workflows/build.yml
+  publish:
+    needs: [check, build]
+    if: github.event_name != 'push' && (github.event_name == 'schedule' || inputs.publish)
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: source-pin
+          path: scripts
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          pattern: candidate-*
+          merge-multiple: true
+          path: .build/dist
+      - run: python3 scripts/install.py .build/dist
+      - run: python3 scripts/verify.py
+      - run: CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
+      - name: Get repository-scoped App token (same configuration as kitte)
+        id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          client-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Open update pull request
+        id: pr
+        uses: peter-evans/create-pull-request@5f6978faf089d4d20b00c7766989d076bb2fc7f1 # v8.1.1
+        with:
+          token: ${{ steps.app.outputs.token }}
+          branch: auto-update/sqlite
+          title: 'Update embedded SQLite to ${{ needs.check.outputs.version }}'
+          commit-message: 'Update embedded SQLite to ${{ needs.check.outputs.version }}'
+          body: |
+            Rebuild official SQLite from verified stable-release source.
+            All target candidates pass the build and runtime validation workflow before this PR is opened.
+            Review source checksums, manifests, compiler flags and binaries before merging.
+          add-paths: |
+            scripts/source.json
+            version.go
+            asset_*.go
+            assets/
+          delete-branch: true
+      - run: echo 'Update PR ${{ steps.pr.outputs.pull-request-url }}' >> "$GITHUB_STEP_SUMMARY"
+  validate-app:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    steps:
+      - id: app
+        uses: actions/create-github-app-token@64ab729a6294000f5aa4a4bc0b73d1f32bc45510 # v3
+        with:
+          client-id: ${{ vars.APP_ID }}
+          private-key: ${{ secrets.PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+          permission-pull-requests: write
+      - name: Verify installation token repository scope
+        env:
+          GH_TOKEN: ${{ steps.app.outputs.token }}
+          EXPECTED: ${{ github.repository }}
+        run: test "$(gh api installation/repositories --jq '.repositories[].full_name')" = "$EXPECTED"
