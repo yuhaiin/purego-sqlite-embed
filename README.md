@@ -99,7 +99,7 @@ The library and its directory remain until explicitly removed after process exit
 ```sh
 python3 scripts/install-zig.py # adds Zig to GITHUB_PATH in Actions; locally add printed install path to PATH
 python3 scripts/build.py linux_amd64_glibc
-python3 scripts/install.py .build/dist
+go run ./internal/cmd/install -source .build/dist
 CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
 (cd tests/integration && CGO_ENABLED=0 go test ./...)
 python3 -m unittest discover -s scripts -p 'test_*.py'
@@ -113,6 +113,20 @@ Integration tests use a separate module so the embedding module retains zero dep
 ## Automatic updates
 
 [Update SQLite](.github/workflows/update.yml) checks the official stable-release metadata daily. A new release updates the source pin, rebuilds all targets, validates candidates on native Linux/macOS/Windows/FreeBSD runners plus musl containers, then opens or updates a single PR using `peter-evans/create-pull-request@v8`. It never merges automatically. Manual dispatch supports rebuilding the pinned version and disabling PR publication. Feature-branch pushes that change build inputs also build candidates without publication. [Check updater App](.github/workflows/check-app.yml) supports a quick manual credential check.
+
+The Go release checker compares numeric stable versions (including four-part
+patch releases). With no newer version, it does not download the amalgamation,
+rewrite the pin, build binaries or publish a PR. The run summary records the
+pinned and upstream versions and distinguishes a new release, an explicit
+manual rebuild, and validation of changed build inputs.
+
+`go generate ./...` verifies the committed native manifests and regenerates all
+Go embed files and `version.go` offline. New CI candidates are installed with
+`go run ./internal/cmd/install -source .build/dist`; the Go installer validates
+source pins, both helper ABIs and every candidate's binary hash before replacing
+files. Version checking and Go code generation need no Python. Cross-compiler
+installation, native compilation and binary-format verification remain in the
+platform build scripts.
 
 The updater follows [kitte's GitHub App setup](https://github.com/yuhaiin/kitte/blob/main/.github/workflows/update.yml):
 
