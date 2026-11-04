@@ -16,6 +16,9 @@ SOURCE = json.loads((ROOT / "scripts/source.json").read_text())
 VERSION, URL, SHA256, SHA3 = (SOURCE[key] for key in ("version", "url", "sha256", "sha3_256"))
 FLAGS = ["-DSQLITE_THREADSAFE=1", "-DSQLITE_ENABLE_FTS5", "-DSQLITE_ENABLE_RTREE",
          "-DSQLITE_ENABLE_DBSTAT_VTAB", "-DSQLITE_ENABLE_MATH_FUNCTIONS", "-DSQLITE_USE_URI=1"]
+BRIDGE = ROOT / "bridge/row.c"
+BRIDGE_ABI = 1
+BRIDGE_SHA256 = hashlib.sha256(BRIDGE.read_bytes()).hexdigest()
 
 
 def source():
@@ -55,15 +58,18 @@ def build(key):
         args += ["-mmacosx-version-min=11.0", "-Wl,-install_name,@rpath/libsqlite3.dylib"]
     elif goos == "linux":
         args += ["-Wl,-soname,libsqlite3.so", "-Wl,--build-id=sha1", "-Wl,-s"]
+    if goos in ("linux", "freebsd"):
+        args += ["-Wl,-Bsymbolic"]
     if goos == "windows":
         args += ["-DSQLITE_API=__declspec(dllexport)"]
     args += FLAGS
     libs = ["-lm", "-lpthread", "-ldl"] if goos == "linux" else ([] if goos == "windows" else ["-lm", "-lpthread"])
-    command = compiler + args + [str(src / "sqlite3.c"), "-o", str(out / filename)] + libs
+    command = compiler + args + ["-I" + str(src), str(src / "sqlite3.c"), str(BRIDGE), "-o", str(out / filename)] + libs
     print(shlex.join(command), flush=True)
     subprocess.run(command, check=True)
     data = (out / filename).read_bytes()
-    manifest = {"sqlite_version": VERSION, "goos": goos, "goarch": target["goarch"],
+    manifest = {"sqlite_version": VERSION, "row_bridge_abi": BRIDGE_ABI, "row_bridge_sha256": BRIDGE_SHA256,
+                "goos": goos, "goarch": target["goarch"],
                 "libc": target["libc"], "float_abi": target.get("float_abi", ""),
                 "minimum_os": target["minimum_os"], "filename": filename,
                 "sha256": hashlib.sha256(data).hexdigest(), "size": len(data),

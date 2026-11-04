@@ -28,6 +28,10 @@ func TestPrebuiltNativeSQLite(t *testing.T) {
 	if connector.Version() != sqliteembed.SQLiteVersion {
 		t.Fatal("unexpected engine", connector.Version())
 	}
+	fastRows, err := connector.HasFeature("row_read_v1")
+	if err != nil || !fastRows || info.RowBridgeABI != 1 {
+		t.Fatalf("required row bridge absent: feature=%v ABI=%d err=%v", fastRows, info.RowBridgeABI, err)
+	}
 	for _, feature := range []string{"fts5", "json", "jsonb", "rtree", "math", "dbstat"} {
 		ok, err := connector.HasFeature(feature)
 		if err != nil || !ok {
