@@ -19,6 +19,14 @@ It never steps or retains caller memory; the driver copies native payloads
 before the next step/reset/finalize. No extra shared library or application CGO
 dependency is introduced.
 
+Prebuilts also export `purego_sqlite_exec_scalar_v1`, compiled from
+[bridge/exec.c](bridge/exec.c). A compatible driver executes complete positional
+INTEGER, REAL, BOOLEAN and NULL binds in one native call, including result
+metadata and reset. `connector.HasFeature("exec_scalar_v1")` reports availability;
+`Info()` records `ExecBridgeABI` and `ExecBridgeSHA256`. TEXT/BLOB, named arguments
+and Query retain the ordinary driver path. The helper uses public SQLite APIs
+and leaves failures for the driver to capture before cleanup, without retrying.
+
 ## Use
 
 ```sh

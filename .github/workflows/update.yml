@@ -94,7 +94,7 @@ jobs:
           title: 'Update embedded SQLite to ${{ needs.check.outputs.version }}'
           commit-message: 'Update embedded SQLite to ${{ needs.check.outputs.version }}'
           body: |
-            Rebuild official SQLite from verified stable-release source, with the optional versioned row reader.
+            Rebuild official SQLite from verified stable-release source, with the optional versioned row reader and scalar executor.
             All target candidates pass the build and runtime validation workflow before this PR is opened.
             Review source checksums, manifests, compiler flags and binaries before merging.
           add-paths: |
