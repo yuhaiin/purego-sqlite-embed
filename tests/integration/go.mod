@@ -3,7 +3,7 @@ module github.com/yuhaiin/purego-sqlite-embed/tests/integration
 go 1.26.0
 
 require (
-	github.com/yuhaiin/purego-sqlite v0.0.0-20261103162521-e062acfd3623
+	github.com/yuhaiin/purego-sqlite v0.0.0-20261104051913-ae6d600fe5fb
 	github.com/yuhaiin/purego-sqlite-embed v0.0.0
 )
 

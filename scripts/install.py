@@ -7,7 +7,7 @@ from pathlib import Path
 import shutil
 import subprocess
 
-from build import ROOT, VERSION, URL, SHA256, SHA3
+from build import ROOT, VERSION, URL, SHA256, SHA3, BRIDGE_ABI, BRIDGE_SHA256
 
 
 def install(source, keys):
@@ -19,6 +19,7 @@ def install(source, keys):
         manifest = json.loads((candidate / "manifest.json").read_text())
         filename = {"darwin":"libsqlite3.dylib", "windows":"sqlite3.dll"}.get(target["goos"], "libsqlite3.so")
         for name, expected in {"sqlite_version": VERSION, "source_url": URL, "source_sha256": SHA256,
+                               "row_bridge_abi": BRIDGE_ABI, "row_bridge_sha256": BRIDGE_SHA256,
                                "source_sha3_256": SHA3, "goos": target["goos"], "goarch": target["goarch"],
                                "libc": target["libc"], "float_abi": target.get("float_abi", ""),
                                "minimum_os": target["minimum_os"], "filename": filename}.items():

@@ -8,7 +8,7 @@ import struct
 import subprocess
 from pathlib import Path
 
-from build import ROOT, SOURCE, FLAGS
+from build import ROOT, SOURCE, FLAGS, BRIDGE_ABI, BRIDGE_SHA256
 
 
 def verify():
@@ -18,6 +18,7 @@ def verify():
         manifest = json.loads((directory / 'manifest.json').read_text())
         filename = {'darwin': 'libsqlite3.dylib', 'windows': 'sqlite3.dll'}.get(target['goos'], 'libsqlite3.so')
         expected = {'sqlite_version': SOURCE['version'], 'source_url': SOURCE['url'],
+                    'row_bridge_abi': BRIDGE_ABI, 'row_bridge_sha256': BRIDGE_SHA256,
                     'source_sha256': SOURCE['sha256'], 'source_sha3_256': SOURCE['sha3_256'],
                     'goos': target['goos'], 'goarch': target['goarch'], 'libc': target['libc'],
                     'float_abi': target.get('float_abi', ''), 'minimum_os': target['minimum_os'], 'filename': filename}

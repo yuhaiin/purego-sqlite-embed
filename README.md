@@ -4,6 +4,21 @@ Prebuilt official SQLite shared libraries embedded in Go applications. Companion
 
 Only the library matching the target OS, architecture, libc and floating-point ABI is embedded in the executable. The Go module download contains all committed assets. SQLite is a native C engine, loaded dynamically after extraction.
 
+Prebuilts include an optional `purego_sqlite_read_row_v1` export that reads all
+columns of the current row in one native call. The official SQLite amalgamation
+is unchanged; [bridge/row.c](bridge/row.c) is compiled alongside it into the same
+library. A compatible driver detects the export automatically. System SQLite
+and older prebuilts remain supported through the driver's standard API path;
+older drivers can also use these prebuilts without using the extra export.
+
+`connector.HasFeature("row_read_v1")` reports whether the selected library has
+this interface. `Info()` records its ABI version and source SHA-256. The
+[versioned ABI](bridge/README.md) preserves integer and floating point bits,
+dynamic storage classes, NULL/empty distinctions and byte-counted text/BLOBs.
+It never steps or retains caller memory; the driver copies native payloads
+before the next step/reset/finalize. No extra shared library or application CGO
+dependency is introduced.
+
 ## Use
 
 ```sh
