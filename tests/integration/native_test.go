@@ -32,6 +32,10 @@ func TestPrebuiltNativeSQLite(t *testing.T) {
 	if err != nil || !fastRows || info.RowBridgeABI != 1 {
 		t.Fatalf("required row bridge absent: feature=%v ABI=%d err=%v", fastRows, info.RowBridgeABI, err)
 	}
+	fastExec, err := connector.HasFeature("exec_scalar_v1")
+	if err != nil || !fastExec || info.ExecBridgeABI != 1 {
+		t.Fatalf("required scalar executor absent: feature=%v ABI=%d err=%v", fastExec, info.ExecBridgeABI, err)
+	}
 	for _, feature := range []string{"fts5", "json", "jsonb", "rtree", "math", "dbstat"} {
 		ok, err := connector.HasFeature(feature)
 		if err != nil || !ok {
@@ -58,6 +62,40 @@ func TestPrebuiltNativeSQLite(t *testing.T) {
 		if gotInt != integer || gotDouble != math.Pi || text != "你好\x00SQLite" || !bytes.Equal(gotBlob, blob) {
 			t.Fatal("ABI/value round trip failed")
 		}
+	}
+	// Reuse a scalar statement across success, constraint failure and recovery.
+	if _, err := db.Exec("CREATE TABLE scalar(id INTEGER PRIMARY KEY, value REAL, flag, optional)"); err != nil {
+		t.Fatal(err)
+	}
+	s, err := db.Prepare("INSERT INTO scalar VALUES(?,?,?,?) RETURNING id")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	for _, integer := range []int64{math.MinInt64, math.MaxInt64} {
+		r, err := s.Exec(integer, math.Pi, true, nil)
+		if err != nil {
+			t.Fatal(err)
+		}
+		if id, _ := r.LastInsertId(); id != integer {
+			t.Fatal("scalar row ID", id)
+		}
+		if n, _ := r.RowsAffected(); n != 1 {
+			t.Fatal("scalar changes", n)
+		}
+	}
+	if _, err := s.Exec(int64(1), 0.5, false, nil); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.Exec(int64(1), 1.5, false, nil); err == nil {
+		t.Fatal("constraint failure discarded")
+	}
+	if _, err := s.Exec(int64(2), 2.5, false, nil); err != nil {
+		t.Fatal("failed statement not reusable", err)
+	}
+	var scalarCount int
+	if err := db.QueryRow("SELECT count(*) FROM scalar").Scan(&scalarCount); err != nil || scalarCount != 4 {
+		t.Fatal("scalar execution duplicated or lost writes", scalarCount, err)
 	}
 	var integrity string
 	if err := db.QueryRow("PRAGMA integrity_check").Scan(&integrity); err != nil || integrity != "ok" {

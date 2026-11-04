@@ -8,7 +8,7 @@ import struct
 import subprocess
 from pathlib import Path
 
-from build import ROOT, SOURCE, FLAGS, BRIDGE_ABI, BRIDGE_SHA256
+from build import ROOT, SOURCE, FLAGS, BRIDGE_ABI, BRIDGE_SHA256, EXEC_BRIDGE_ABI, EXEC_BRIDGE_SHA256
 
 
 def verify():
@@ -19,6 +19,7 @@ def verify():
         filename = {'darwin': 'libsqlite3.dylib', 'windows': 'sqlite3.dll'}.get(target['goos'], 'libsqlite3.so')
         expected = {'sqlite_version': SOURCE['version'], 'source_url': SOURCE['url'],
                     'row_bridge_abi': BRIDGE_ABI, 'row_bridge_sha256': BRIDGE_SHA256,
+                    'exec_bridge_abi': EXEC_BRIDGE_ABI, 'exec_bridge_sha256': EXEC_BRIDGE_SHA256,
                     'source_sha256': SOURCE['sha256'], 'source_sha3_256': SOURCE['sha3_256'],
                     'goos': target['goos'], 'goarch': target['goarch'], 'libc': target['libc'],
                     'float_abi': target.get('float_abi', ''), 'minimum_os': target['minimum_os'], 'filename': filename}
@@ -33,8 +34,9 @@ def verify():
         arch = target['goarch']
         if target['goos'] in ('linux', 'freebsd'):
             symbols = subprocess.check_output(['readelf', '--dyn-syms', '--wide', str(directory / filename)], text=True)
-            if not any('purego_sqlite_read_row_v1' in line and 'GLOBAL' in line and ' UND ' not in line for line in symbols.splitlines()):
-                raise ValueError(f'{key}: row reader is not exported')
+            for symbol in ('purego_sqlite_read_row_v1', 'purego_sqlite_exec_scalar_v1'):
+                if not any(symbol in line and 'GLOBAL' in line and ' UND ' not in line for line in symbols.splitlines()):
+                    raise ValueError(f'{key}: {symbol} is not exported')
             if '-Wl,-Bsymbolic' not in manifest['flags']:
                 raise ValueError(f'{key}: SQLite internal symbol binding missing')
             if data[:4] != b'\x7fELF' or data[5] != 1 or data[4] != (1 if arch == 'mipsle' else 2):

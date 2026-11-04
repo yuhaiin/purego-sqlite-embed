@@ -20,24 +20,26 @@ var ErrUnsupportedPlatform = errors.New("sqliteembed: no prebuilt library for th
 
 // Metadata describes the selected binary and its verified official source.
 type Metadata struct {
-	SQLiteVersion   string   `json:"sqlite_version"`
-	RowBridgeABI    uint32   `json:"row_bridge_abi"`
-	RowBridgeSHA256 string   `json:"row_bridge_sha256"`
-	GOOS            string   `json:"goos"`
-	GOARCH          string   `json:"goarch"`
-	Libc            string   `json:"libc"`
-	FloatABI        string   `json:"float_abi"`
-	MinimumOS       string   `json:"minimum_os"`
-	Filename        string   `json:"filename"`
-	SHA256          string   `json:"sha256"`
-	Size            int64    `json:"size"`
-	SourceURL       string   `json:"source_url"`
-	SourceSHA256    string   `json:"source_sha256"`
-	SourceSHA3      string   `json:"source_sha3_256"`
-	Compiler        string   `json:"compiler"`
-	Flags           []string `json:"flags"`
-	BuildCommit     string   `json:"build_commit"`
-	BuildRun        string   `json:"build_run"`
+	SQLiteVersion    string   `json:"sqlite_version"`
+	ExecBridgeABI    uint32   `json:"exec_bridge_abi"`
+	ExecBridgeSHA256 string   `json:"exec_bridge_sha256"`
+	RowBridgeABI     uint32   `json:"row_bridge_abi"`
+	RowBridgeSHA256  string   `json:"row_bridge_sha256"`
+	GOOS             string   `json:"goos"`
+	GOARCH           string   `json:"goarch"`
+	Libc             string   `json:"libc"`
+	FloatABI         string   `json:"float_abi"`
+	MinimumOS        string   `json:"minimum_os"`
+	Filename         string   `json:"filename"`
+	SHA256           string   `json:"sha256"`
+	Size             int64    `json:"size"`
+	SourceURL        string   `json:"source_url"`
+	SourceSHA256     string   `json:"source_sha256"`
+	SourceSHA3       string   `json:"source_sha3_256"`
+	Compiler         string   `json:"compiler"`
+	Flags            []string `json:"flags"`
+	BuildCommit      string   `json:"build_commit"`
+	BuildRun         string   `json:"build_run"`
 }
 
 type asset struct{ data, manifest []byte }

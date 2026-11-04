@@ -17,6 +17,9 @@ VERSION, URL, SHA256, SHA3 = (SOURCE[key] for key in ("version", "url", "sha256"
 FLAGS = ["-DSQLITE_THREADSAFE=1", "-DSQLITE_ENABLE_FTS5", "-DSQLITE_ENABLE_RTREE",
          "-DSQLITE_ENABLE_DBSTAT_VTAB", "-DSQLITE_ENABLE_MATH_FUNCTIONS", "-DSQLITE_USE_URI=1"]
 BRIDGE = ROOT / "bridge/row.c"
+EXEC_BRIDGE = ROOT / "bridge/exec.c"
+EXEC_BRIDGE_ABI = 1
+EXEC_BRIDGE_SHA256 = hashlib.sha256(EXEC_BRIDGE.read_bytes()).hexdigest()
 BRIDGE_ABI = 1
 BRIDGE_SHA256 = hashlib.sha256(BRIDGE.read_bytes()).hexdigest()
 
@@ -64,11 +67,12 @@ def build(key):
         args += ["-DSQLITE_API=__declspec(dllexport)"]
     args += FLAGS
     libs = ["-lm", "-lpthread", "-ldl"] if goos == "linux" else ([] if goos == "windows" else ["-lm", "-lpthread"])
-    command = compiler + args + ["-I" + str(src), str(src / "sqlite3.c"), str(BRIDGE), "-o", str(out / filename)] + libs
+    command = compiler + args + ["-I" + str(src), str(src / "sqlite3.c"), str(BRIDGE), str(EXEC_BRIDGE), "-o", str(out / filename)] + libs
     print(shlex.join(command), flush=True)
     subprocess.run(command, check=True)
     data = (out / filename).read_bytes()
     manifest = {"sqlite_version": VERSION, "row_bridge_abi": BRIDGE_ABI, "row_bridge_sha256": BRIDGE_SHA256,
+                "exec_bridge_abi": EXEC_BRIDGE_ABI, "exec_bridge_sha256": EXEC_BRIDGE_SHA256,
                 "goos": goos, "goarch": target["goarch"],
                 "libc": target["libc"], "float_abi": target.get("float_abi", ""),
                 "minimum_os": target["minimum_os"], "filename": filename,
