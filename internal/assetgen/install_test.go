@@ -14,7 +14,7 @@ func fixture(t *testing.T) (string, string) {
 	t.Helper()
 	root, source := t.TempDir(), t.TempDir()
 	// Use real manifests and binaries, so integrity and bridge pins are exercised.
-	for _, name := range []string{"scripts/source.json", "scripts/targets.json", "bridge/row.c", "bridge/exec.c"} {
+	for _, name := range []string{"scripts/targets.json", "bridge/row.c", "bridge/exec.c"} {
 		b, err := os.ReadFile(filepath.Join("../..", name))
 		if err != nil {
 			t.Fatal(err)
@@ -31,6 +31,21 @@ func fixture(t *testing.T) (string, string) {
 		if err := sqlitesource.WriteFile(filepath.Join(source, "linux_amd64_glibc", name), b); err != nil {
 			t.Fatal(err)
 		}
+	}
+	// Candidate jobs install only their platform before running tests. During a
+	// version update, this committed Linux fixture may still be the old version.
+	// Give the isolated fixture its own matching pin rather than the job's pin.
+	b, err := os.ReadFile(filepath.Join(source, "linux_amd64_glibc/manifest.json"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	var m metadata
+	if err := json.Unmarshal(b, &m); err != nil {
+		t.Fatal(err)
+	}
+	pin := sqlitesource.Pin{Version: m.Version, URL: m.SourceURL, SHA256: m.SourceSHA256, SHA3: m.SourceSHA3}
+	if err := sqlitesource.WriteJSON(filepath.Join(root, "scripts/source.json"), pin); err != nil {
+		t.Fatal(err)
 	}
 	return root, source
 }

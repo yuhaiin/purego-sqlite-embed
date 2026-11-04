@@ -16,9 +16,10 @@ on:
   push:
     branches: ['codex/**']
     paths:
-      - 'scripts/**'
-      - 'internal/**'
-      - 'generate.go'
+      - 'scripts/build.py'
+      - 'scripts/targets.json'
+      - 'scripts/source.json'
+      - 'scripts/install-zig.py'
       - 'bridge/**'
       - '.github/workflows/build.yml'
 permissions:
