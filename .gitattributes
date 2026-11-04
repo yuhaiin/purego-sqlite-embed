@@ -1,0 +1,2 @@
+# Bridge source hashes must match on native Windows and Unix builders.
+bridge/*.c text eol=lf

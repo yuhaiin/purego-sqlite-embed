@@ -2,7 +2,7 @@
 
 Prebuilt official SQLite shared libraries embedded in Go applications. Companion to [purego-sqlite](https://github.com/yuhaiin/purego-sqlite); this module has no driver dependency, no CGO, and no runtime downloads. Requires Go 1.26 or newer.
 
-Only the library matching the target OS, architecture, libc and floating-point ABI is embedded in the executable. The Go module download contains all committed assets. SQLite is a native C engine, loaded dynamically after extraction.
+Only the library matching the target OS, architecture, libc and floating-point ABI is embedded in the executable. The Go module download contains all committed assets. SQLite is a native C engine, loaded dynamically after extraction. CGO-free does not mean libc-free: Linux libraries still depend on the selected system C runtime.
 
 Prebuilts include an optional `purego_sqlite_read_row_v1` export that reads all
 columns of the current row in one native call. The official SQLite amalgamation
@@ -65,6 +65,14 @@ SQLite version: **3.54.1**. Features include FTS5, JSON/JSONB, RTree, dbstat and
 | Windows amd64 | Windows 10 | default |
 | Windows arm64 | Windows 10 ARM64 | default |
 | FreeBSD amd64 | FreeBSD 14.3 | default |
+
+The glibc builds target glibc 2.17 and CI rejects imported GLIBC symbol versions newer than 2.17. They depend on system libc/libm/libpthread/libdl; musl builds depend on system musl. These shared libraries do not bundle a static libc. A newer glibc system normally satisfies the older symbol requirements, but the two libc families are not interchangeable.
+
+The amd64 CGO-free integration executable is also run against real glibc 2.17
+in a pinned container, including the optional row reader. This tests the minimum
+runtime rather than only inspecting symbol version requirements. A deployment
+requiring no libc installation can use the driver's separate static CGO mode;
+these embedded shared libraries are not that mode.
 
 Go does not detect the target libc. Select `sqlite_musl` explicitly for Alpine/OpenWrt musl builds; for a musl program using the driver, enable CGO and use `-tags sqlite_cgo,sqlite_musl` with a matching musl compiler. `GOMIPS` must agree with the C compiler, sysroot and firmware ABI. Do not load a glibc library on musl or mix MIPS floating-point ABIs. Other targets return `ErrUnsupportedPlatform`; Android and iOS are excluded explicitly.
 

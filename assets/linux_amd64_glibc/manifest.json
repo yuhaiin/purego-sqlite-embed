@@ -8,8 +8,8 @@
   "float_abi": "",
   "minimum_os": "glibc 2.17",
   "filename": "libsqlite3.so",
-  "sha256": "e09accce5b59cdcdd53a35b525b891194009530a3a9a6128390f9dda05502ea4",
-  "size": 1522408,
+  "sha256": "5a85c26f40608cf1e716d09dd8f438e46c0c236ea7e0d662dcda30b964fc8e04",
+  "size": 1522392,
   "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
   "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
   "source_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
@@ -36,6 +36,6 @@
     "-lpthread",
     "-ldl"
   ],
-  "build_commit": "b9db4a1e4cfb1ab60026814b631d776b31ad6bb8",
-  "build_run": "local"
+  "build_commit": "d484be3433b9c271e10c17fbb2a1260dce57f21a",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41778591366"
 }

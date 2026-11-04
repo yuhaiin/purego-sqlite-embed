@@ -1,13 +1,15 @@
 {
   "sqlite_version": "3.54.1",
+  "row_bridge_abi": 1,
+  "row_bridge_sha256": "923faef7425727a9c5e69d688b2dae1f4966534b8d2ca9f8df3e86dee84c8aab",
   "goos": "darwin",
   "goarch": "amd64",
   "libc": "libSystem",
   "float_abi": "",
   "minimum_os": "macOS 11.0",
   "filename": "libsqlite3.dylib",
-  "sha256": "9ed26675ab01d26f9f7820d22044f2d2c8282fdcf9b0deec13df049d423f30e3",
-  "size": 1491952,
+  "sha256": "c967100c65df1e8cbeacde6707842e6554d4c730dc055e710169094f1ddcba98",
+  "size": 1492040,
   "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
   "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
   "source_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
@@ -28,6 +30,6 @@
     "-lm",
     "-lpthread"
   ],
-  "build_commit": "988ab4e67840d7e1210bd897558c27e82d16e48d",
-  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41677987646"
+  "build_commit": "d484be3433b9c271e10c17fbb2a1260dce57f21a",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41778591366"
 }
