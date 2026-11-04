@@ -2,14 +2,16 @@
   "sqlite_version": "3.54.1",
   "row_bridge_abi": 1,
   "row_bridge_sha256": "923faef7425727a9c5e69d688b2dae1f4966534b8d2ca9f8df3e86dee84c8aab",
+  "exec_bridge_abi": 1,
+  "exec_bridge_sha256": "a73d2109010b5c34fddd7e3fb233bf0ab4cbf02217260214ea295555ddfe197c",
   "goos": "linux",
   "goarch": "mipsle",
   "libc": "glibc",
   "float_abi": "softfloat",
   "minimum_os": "MIPS32r2, glibc 2.17",
   "filename": "libsqlite3.so",
-  "sha256": "fabf28cc513a64fb9d9c0e3eb74bd35b8f137c44aa85cc13adfdfadaa2a790b9",
-  "size": 2059276,
+  "sha256": "6bc8701bdc085d5aef20606919dd5a423c8883f3f8ea8a7b3e8b3de8b2f10693",
+  "size": 2060068,
   "source_url": "https://www.sqlite.org/2026/sqlite-amalgamation-3540100.zip",
   "source_sha256": "0a9c8e34352dad46006aa82836d5383bff9dc6bc9ce5a60553c05aa30e6ad1f9",
   "source_sha3_256": "92281c86e2957f9b9305890f9ac04204caa7b677cc868dc326d942689df28e30",
@@ -36,6 +38,6 @@
     "-lpthread",
     "-ldl"
   ],
-  "build_commit": "d484be3433b9c271e10c17fbb2a1260dce57f21a",
-  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41778591366"
+  "build_commit": "741503efb3d76db749dc3770dd394e99ae1d9665",
+  "build_run": "https://github.com/yuhaiin/purego-sqlite-embed/actions/runs/41793502034"
 }
