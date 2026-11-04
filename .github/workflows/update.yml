@@ -1,11 +1,12 @@
 name: Update SQLite
+run-name: 'SQLite: ${{ github.event_name == ''push'' && ''validate build inputs'' || ''check stable release'' }}'
 on:
   schedule:
     - cron: '17 3 * * *'
   workflow_dispatch:
     inputs:
       force:
-        description: Rebuild the current version even without a new release
+        description: Rebuild even if the upstream SQLite version is unchanged
         type: boolean
         default: false
       publish:
@@ -16,6 +17,8 @@ on:
     branches: ['codex/**']
     paths:
       - 'scripts/**'
+      - 'internal/**'
+      - 'generate.go'
       - 'bridge/**'
       - '.github/workflows/build.yml'
 permissions:
@@ -31,18 +34,22 @@ jobs:
       version: ${{ steps.check.outputs.version }}
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version-file: go.mod
+          cache: false
+      - run: go test ./internal/sqlitesource ./internal/assetgen
       - id: check
         env:
           EVENT: ${{ github.event_name }}
           FORCE: ${{ inputs.force }}
         run: |
           if [ "$EVENT" = push ]; then
-            echo 'changed=true' >> "$GITHUB_OUTPUT"
-            python3 -c 'import json,os; f=open(os.environ["GITHUB_OUTPUT"],"a"); f.write("version="+json.load(open("scripts/source.json"))["version"]+"\n")'
+            go run ./internal/cmd/check-update -build-inputs
           elif [ "$FORCE" = true ]; then
-            python3 scripts/check-update.py --force
+            go run ./internal/cmd/check-update -force
           else
-            python3 scripts/check-update.py
+            go run ./internal/cmd/check-update
           fi
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
@@ -55,7 +62,7 @@ jobs:
     uses: ./.github/workflows/build.yml
   publish:
     needs: [check, build]
-    if: github.event_name != 'push' && (github.event_name == 'schedule' || inputs.publish)
+    if: needs.check.outputs.changed == 'true' && github.event_name != 'push' && (github.event_name == 'schedule' || inputs.publish)
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
@@ -72,7 +79,7 @@ jobs:
           pattern: candidate-*
           merge-multiple: true
           path: .build/dist
-      - run: python3 scripts/install.py .build/dist
+      - run: go run ./internal/cmd/install -source .build/dist
       - run: python3 scripts/verify.py
       - run: CGO_ENABLED=0 SQLITE_EMBED_REQUIRE=1 go test ./...
       - name: Get repository-scoped App token (same configuration as kitte)
